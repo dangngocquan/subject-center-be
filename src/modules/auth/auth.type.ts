@@ -1,5 +1,5 @@
 export type AuthTokenPayload = {
-  telegram_id: number;
+  id: number;
 };
 
 export type DataAuthSecret = {

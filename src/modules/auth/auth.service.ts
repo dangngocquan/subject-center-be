@@ -1,32 +1,28 @@
 import {
   BadRequestException,
-  forwardRef,
   Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { JwtConfig } from '../../configs/jwt.config';
-import { UserDocument } from '../users/user.model';
-import { UserService } from '../users/user.service';
 import { AuthConstants } from './auth.constant';
 import { AuthTokenPayload } from './auth.type';
+import { JwtConfig } from './config/jwt.config';
+import { TUser } from './types/auth.type';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   @Inject(ConfigService) private readonly configService: ConfigService;
   @Inject(JwtService) private readonly jwtService: JwtService;
-  @Inject(forwardRef(() => UserService))
-  private readonly userService: UserService;
 
-  encodeToken(user: UserDocument): string {
+  encodeToken(user: TUser): string {
     try {
       const jwtConfig = this.configService.get<JwtConfig>('jwt');
       const token = this.jwtService.sign(
         {
-          telegram_id: user.telegramId,
+          id: user.id,
         } as AuthTokenPayload,
         {
           secret: jwtConfig.secret,
@@ -42,16 +38,17 @@ export class AuthService {
     }
   }
 
-  async decodeToken(token: string): Promise<UserDocument> {
+  async decodeToken(token: string): Promise<TUser> {
     try {
       const jwtConfig = this.configService.get<JwtConfig>('jwt');
       const tokenPayload: AuthTokenPayload =
         await this.jwtService.verifyAsync<AuthTokenPayload>(token, {
           secret: jwtConfig.secret,
         });
-      const user = await this.userService.findUserByTelegramId(
-        tokenPayload.telegram_id,
-      );
+      // const user = await this.userService.findUserByTelegramId(
+      //   tokenPayload.telegram_id,
+      // );
+      const user: TUser = null;
       if (!user) {
         this.logger.error(
           `[decodeToken]: User not found, ${JSON.stringify({ token, tokenPayload })}`,

@@ -6,7 +6,6 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserService } from '../users/user.service';
 import { AuthHeaderKeys } from './auth.constant';
 import { AuthService } from './auth.service';
 
@@ -14,7 +13,6 @@ import { AuthService } from './auth.service';
 export class AuthTokenGuard implements CanActivate {
   private readonly logger = new Logger(AuthTokenGuard.name);
   @Inject(AuthService) private readonly authService: AuthService;
-  @Inject(UserService) private readonly userService: UserService;
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -28,7 +26,7 @@ export class AuthTokenGuard implements CanActivate {
       }
       const user = await this.authService.decodeToken(token);
       request['user'] = user;
-      await this.userService.updateLastTimeLogin(user);
+      // await this.userService.updateLastTimeLogin(user);
       return true;
     } catch (error) {
       this.logger.error(

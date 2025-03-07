@@ -8,10 +8,10 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
-import { AppConfig } from 'src/configs/app.config';
 import { AESService } from '../aes/aes.service';
 import { AuthConstants, AuthHeaderKeys } from './auth.constant';
 import { DataAuthSecret } from './auth.type';
+import { AppConfig } from 'src/configs/app.config';
 
 @Injectable()
 export class AuthSecretGuard implements CanActivate {
