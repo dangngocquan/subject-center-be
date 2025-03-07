@@ -22,7 +22,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
           database: postgresConfig.database,
           autoLoadEntities: true,
           synchronize: true,
-          ssl: process.env.DB_HOST !== 'localhost',
+          ssl: postgresConfig.host !== 'localhost',
         };
       },
       inject: [ConfigService],
