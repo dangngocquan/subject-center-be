@@ -60,4 +60,5 @@ async function bootstrap() {
   logger.log(`[PORT] Running on port ${port}`);
   logger.log(`[DOCS] Documentation: http://localhost:${port}/docs`);
 }
+
 bootstrap();
