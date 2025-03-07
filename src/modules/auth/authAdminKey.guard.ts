@@ -10,7 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { AESService } from '../aes/aes.service';
 import { AuthConstants, AuthHeaderKeys } from './auth.constant';
 import { DataAuthAdminKey } from './auth.type';
-import { AppConfig } from 'src/configs/app.config';
+import { AppConfig } from '../../configs/app.config';
 
 @Injectable()
 export class AuthAdminKeyGuard implements CanActivate {
