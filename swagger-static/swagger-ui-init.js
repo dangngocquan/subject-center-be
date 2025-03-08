@@ -24,6 +24,54 @@ window.onload = function() {
             "App"
           ]
         }
+      },
+      "/api/v1/google/verify-token": {
+        "post": {
+          "operationId": "GoogleController_verifyGoogleToken",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestGoogleVerifyTokenDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "Google API"
+          ]
+        }
+      },
+      "/api/v1/users/auth/google": {
+        "post": {
+          "operationId": "UserController_authGoogle",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestGoogleVerifyTokenDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "User"
+          ]
+        }
       }
     },
     "info": {
@@ -35,7 +83,19 @@ window.onload = function() {
     "tags": [],
     "servers": [],
     "components": {
-      "schemas": {}
+      "schemas": {
+        "RequestGoogleVerifyTokenDto": {
+          "type": "object",
+          "properties": {
+            "token": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "token"
+          ]
+        }
+      }
     }
   },
   "customOptions": {}

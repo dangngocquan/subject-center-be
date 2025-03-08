@@ -5,10 +5,12 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import jwtConfig from './config/jwt.config';
 import appConfig from '../../configs/app.config';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     AESModule,
+    JwtModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [appConfig, jwtConfig],

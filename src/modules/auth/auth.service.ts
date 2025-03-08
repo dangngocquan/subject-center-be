@@ -9,13 +9,15 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthConstants } from './auth.constant';
 import { AuthTokenPayload } from './auth.type';
 import { JwtConfig } from './config/jwt.config';
-import { TUser } from './types/auth.type';
+import { TUser } from '../user/type/user.type';
+import { UsersService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   @Inject(ConfigService) private readonly configService: ConfigService;
   @Inject(JwtService) private readonly jwtService: JwtService;
+  private readonly userService: UsersService;
 
   encodeToken(user: TUser): string {
     try {
@@ -45,17 +47,16 @@ export class AuthService {
         await this.jwtService.verifyAsync<AuthTokenPayload>(token, {
           secret: jwtConfig.secret,
         });
-      // const user = await this.userService.findUserByTelegramId(
-      //   tokenPayload.telegram_id,
-      // );
-      const user: TUser = null;
-      if (!user) {
+      const userResult = await this.userService.upsertUser({
+        id: tokenPayload.id,
+      });
+      if (userResult.isBadRequest) {
         this.logger.error(
-          `[decodeToken]: User not found, ${JSON.stringify({ token, tokenPayload })}`,
+          `[decodeToken]: User not found, ${JSON.stringify({ token, tokenPayload, userResult })}`,
         );
         throw new BadRequestException('Token invalid. User not found.');
       }
-      return user;
+      return userResult.data;
     } catch (error) {
       this.logger.error(
         `[decodeToken]: token ${token}, error: ${error?.message || error.toString()}`,
