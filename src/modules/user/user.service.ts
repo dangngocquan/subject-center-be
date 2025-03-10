@@ -62,8 +62,7 @@ export class UsersService {
       let entity = null;
       if (data.id) {
         entity = await this.findById(data.id);
-      }
-      if (data.accounts.length > 0) {
+      } else if (data.accounts.length > 0) {
         let entity = null;
         for (const account of data.accounts) {
           if (entity) {

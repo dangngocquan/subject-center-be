@@ -7,6 +7,9 @@ import { join } from 'path';
 import { GoogleModule } from './modules/google/google.module';
 import { AESModule } from './modules/aes/aes.module';
 import { UserModule } from './modules/user/user.module';
+import { MajorModule } from './modules/major/major.module';
+import { ExportModule } from './modules/export/export.module';
+import { ImportModule } from './modules/import/import.module';
 
 @Module({
   imports: [
@@ -18,6 +21,9 @@ import { UserModule } from './modules/user/user.module';
     PostgresqlModule,
     GoogleModule,
     UserModule,
+    MajorModule,
+    ExportModule,
+    ImportModule,
   ],
   controllers: [AppController],
   providers: [AppService],

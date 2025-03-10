@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import googleConfig from './google.config';
 import { GoogleService } from './google.service';
-import { GoogleController } from './google.controller';
 
 @Module({
   imports: [
@@ -11,7 +10,7 @@ import { GoogleController } from './google.controller';
       load: [googleConfig],
     }),
   ],
-  controllers: [GoogleController],
+  controllers: [],
   providers: [GoogleService],
   exports: [GoogleService],
 })
