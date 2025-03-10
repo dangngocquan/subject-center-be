@@ -4,11 +4,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { EPlatformProvider } from '../type/user.type';
 import { UserEntity } from './user.entity';
+import { PlanEntity } from '../../plan/entity/plan.entity';
 
 @Entity({ name: 'account' })
 export class AccountEntity {
@@ -58,4 +60,7 @@ export class AccountEntity {
   })
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
+
+  @OneToMany(() => PlanEntity, (plan) => plan.account)
+  plans: PlanEntity[];
 }

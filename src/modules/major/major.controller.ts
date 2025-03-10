@@ -49,7 +49,10 @@ export class MajorController {
     const jsonBuffer = await this.exportService.exportToJson(data);
 
     res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Content-Disposition', 'attachment; filename="data.json"');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="major.sample.json"',
+    );
     res.send(jsonBuffer);
   }
 

@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from './entity/user.entity';
-import { EPlatformProvider, EUserRole, TUser } from './type/user.type';
+import { Repository } from 'typeorm';
 import { TResponse } from '../../common/type';
 import { AccountEntity } from './entity/account.entity';
+import { UserEntity } from './entity/user.entity';
+import { EPlatformProvider, EUserRole, TUser } from './type/user.type';
 
 @Injectable()
 export class UsersService {
@@ -63,17 +63,14 @@ export class UsersService {
       if (data.id) {
         entity = await this.findById(data.id);
       } else if (data.accounts.length > 0) {
-        let entity = null;
         for (const account of data.accounts) {
-          if (entity) {
-            break;
-          }
           const foundAccount = await this.findAccountByKeyAndProvider(
             account.key,
             account.provider,
           );
           if (foundAccount) {
             entity = await this.findById(foundAccount.userId);
+            break;
           }
         }
       }
@@ -92,14 +89,21 @@ export class UsersService {
         role: EUserRole.USER,
         name: data.name,
       });
+      entity = await this.usersRepository.save(entity);
       result.data = {
         id: entity.id,
         role: entity.role,
         name: entity.name,
         accounts: [],
       };
-      await this.usersRepository.save(entity);
       for (const account of data.accounts) {
+        const existed = await this.findAccountByKeyAndProvider(
+          account.key,
+          account.provider,
+        );
+        if (existed) {
+          continue;
+        }
         const newAccount = await this.accountRepository.create({
           userId: entity.id,
           key: account.key,

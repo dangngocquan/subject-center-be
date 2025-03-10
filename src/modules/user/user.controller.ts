@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../auth/auth.service';
 import { RequestGoogleVerifyTokenDto } from '../google/dto/req.google-verify-token.dto';
 import { GoogleService } from '../google/google.service';
-import { EPlatformProvider, EUserRole } from './type/user.type';
+import { EPlatformProvider, EUserRole, TUser } from './type/user.type';
 import { UsersService } from './user.service';
 
 @Controller({
@@ -41,7 +41,7 @@ export class UserController {
       if (userResult.isBadRequest) {
         throw new UnauthorizedException(userResult.message);
       }
-      const token = this.authService.encodeToken(userResult.data);
+      const token = this.authService.encodeToken(userResult.data as TUser);
       return {
         token,
       };

@@ -153,7 +153,7 @@ export class MajorService {
       result.data = entity;
     } catch (error) {
       this.logger.error(
-        `[upsertMajor]: Failed to upsert subject ${JSON.stringify(data)}, error: ${
+        `[upsertSubject]: Failed to upsert subject ${JSON.stringify(data)}, error: ${
           error.message || error.toString()
         }`,
       );

@@ -10,6 +10,7 @@ import { UserModule } from './modules/user/user.module';
 import { MajorModule } from './modules/major/major.module';
 import { ExportModule } from './modules/export/export.module';
 import { ImportModule } from './modules/import/import.module';
+import { PlanModule } from './modules/plan/plan.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ImportModule } from './modules/import/import.module';
     MajorModule,
     ExportModule,
     ImportModule,
+    PlanModule,
   ],
   controllers: [AppController],
   providers: [AppService],

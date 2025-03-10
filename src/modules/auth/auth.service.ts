@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  forwardRef,
   Inject,
   Injectable,
   Logger,
@@ -17,6 +18,7 @@ export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   @Inject(ConfigService) private readonly configService: ConfigService;
   @Inject(JwtService) private readonly jwtService: JwtService;
+  @Inject(forwardRef(() => UsersService))
   private readonly userService: UsersService;
 
   encodeToken(user: TUser): string {
