@@ -77,7 +77,10 @@ export class MajorService {
     return result;
   }
 
-  async upsertMajor(data: TMajor): Promise<TResponse<TMajor>> {
+  async upsertMajor(
+    data: TMajor,
+    options?: { createNew?: boolean },
+  ): Promise<TResponse<TMajor>> {
     const result: TResponse<TMajor> = {
       isBadRequest: false,
       message: '',
@@ -85,7 +88,7 @@ export class MajorService {
     };
     try {
       let entity: MajorEntity = null;
-      if (data.id) {
+      if (data.id && !options.createNew) {
         for (const subject of data.subjects) {
           await this.upsertSubject({ ...subject, majorId: data.id });
         }

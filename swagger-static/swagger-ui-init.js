@@ -310,6 +310,38 @@ window.onload = function() {
             "Plan"
           ]
         }
+      },
+      "/api/v1/plans/{id}/summary/subject": {
+        "get": {
+          "operationId": "PlanController_getPlanDetails",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "token",
+              "in": "header",
+              "description": "token",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "401": {
+              "description": "Unauthorized"
+            }
+          },
+          "summary": "Get plan details",
+          "tags": [
+            "Plan"
+          ]
+        }
       }
     },
     "info": {

@@ -90,6 +90,8 @@ export class MajorController {
     if (result.isBadRequest) {
       throw new BadRequestException(result.message);
     }
-    return await this.majorService.upsertMajor(result.data);
+    return await this.majorService.upsertMajor(result.data, {
+      createNew: true,
+    });
   }
 }

@@ -135,11 +135,15 @@ export class PlanController {
     if (result.isBadRequest) {
       throw new BadRequestException(result.message);
     }
-    return await this.planService.upsertPlan(userInfo, {
-      name: result.data.name,
-      accountId: userInfo.accounts[0].id,
-      items: result.data.items,
-    });
+    return await this.planService.upsertPlan(
+      userInfo,
+      {
+        name: result.data.name,
+        accountId: userInfo.accounts[0].id,
+        items: result.data.items,
+      },
+      { createNew: true },
+    );
   }
 
   @Patch(':id/item')
@@ -166,5 +170,21 @@ export class PlanController {
     if (result.isBadRequest) {
       throw new HttpException(result.message, result.status ?? 400);
     }
+  }
+
+  @Get(':id/summary/subject')
+  @ApiAuthToken({ summary: 'Get plan details' })
+  async getPlanDetails(
+    @AuthTokenUser() userInfo: TUser,
+    @Param('id') id: string,
+  ) {
+    const result = await this.planService.getPlanSummary(
+      userInfo,
+      parseInt(id),
+    );
+    if (result.isBadRequest) {
+      throw new HttpException(result.message, result.status ?? 400);
+    }
+    return result.data;
   }
 }

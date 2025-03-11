@@ -21,4 +21,17 @@ export class GradeConversionService {
       return null;
     }
   }
+
+  roundGradeGraduation(grade: number): number {
+    try {
+      return Math.round(grade * 100) / 100;
+    } catch (error) {
+      this.logger.error(
+        `[roundGradeGraduation]: Failed to round graduation grade, error: ${
+          error.message || error.toString()
+        }`,
+      );
+      return null;
+    }
+  }
 }
