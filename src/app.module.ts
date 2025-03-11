@@ -4,6 +4,13 @@ import { AppService } from './app.service';
 import { PostgresqlModule } from './modules/postgresql/postgres.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { GoogleModule } from './modules/google/google.module';
+import { AESModule } from './modules/aes/aes.module';
+import { UserModule } from './modules/user/user.module';
+import { MajorModule } from './modules/major/major.module';
+import { ExportModule } from './modules/export/export.module';
+import { ImportModule } from './modules/import/import.module';
+import { PlanModule } from './modules/plan/plan.module';
 
 @Module({
   imports: [
@@ -11,7 +18,14 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', 'swagger-static'),
       serveRoot: process.env.NODE_ENV === 'development' ? '/' : '/docs',
     }),
+    AESModule,
     PostgresqlModule,
+    GoogleModule,
+    UserModule,
+    MajorModule,
+    ExportModule,
+    ImportModule,
+    PlanModule,
   ],
   controllers: [AppController],
   providers: [AppService],

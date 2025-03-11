@@ -1,0 +1,46 @@
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { SubjectEntity } from './subject.entity';
+
+@Entity({ name: 'major' })
+export class MajorEntity {
+  @PrimaryGeneratedColumn({
+    type: 'bigint',
+  })
+  id: number;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  name?: string;
+
+  @Column({
+    type: 'float',
+    default: () => 'extract(epoch from now())',
+    name: 'order_index',
+  })
+  orderIndex?: number;
+
+  @CreateDateColumn({
+    type: 'timestamp',
+    name: 'created_at',
+  })
+  createdAt!: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamp',
+    name: 'updated_at',
+  })
+  updatedAt!: Date;
+
+  @OneToMany(() => SubjectEntity, (subject) => subject.major)
+  subjects: SubjectEntity[];
+}
