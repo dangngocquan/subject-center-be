@@ -27,6 +27,7 @@ export class MajorItemEntity {
     array: true,
     default: [],
     name: 'prerequisites',
+    nullable: true,
   })
   prerequisites?: string[];
 
