@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
 import { TResponse } from '../../common/type';
 import { MajorEntity } from './entity/major.entity';
-import { SubjectEntity } from './entity/subject.entity';
-import { TMajor, TSubject } from './major.type';
+import { MajorItemEntity } from './entity/major-item.entity';
+import { TMajor, TMajorItem } from './major.type';
 
 @Injectable()
 export class MajorService {
@@ -13,15 +13,15 @@ export class MajorService {
   constructor(
     @InjectRepository(MajorEntity)
     private readonly majorRepository: Repository<MajorEntity>,
-    @InjectRepository(SubjectEntity)
-    private readonly subjectRepository: Repository<SubjectEntity>,
+    @InjectRepository(MajorItemEntity)
+    private readonly subjectRepository: Repository<MajorItemEntity>,
   ) {}
 
   async getMajorById(id: number): Promise<MajorEntity> {
     try {
       return await this.majorRepository.findOne({
         relations: {
-          subjects: true,
+          items: true,
         },
         where: { id },
       });
@@ -35,7 +35,7 @@ export class MajorService {
     }
   }
 
-  async getSubjectById(id: number): Promise<SubjectEntity> {
+  async getSubjectById(id: number): Promise<MajorItemEntity> {
     try {
       return await this.subjectRepository.findOne({
         where: { id },
@@ -59,7 +59,7 @@ export class MajorService {
     try {
       result.data = await this.majorRepository.find({
         relations: {
-          subjects: true,
+          items: true,
         },
         where: {
           name: ILike(`%${filter?.name?.toLocaleLowerCase()?.trim() ?? ''}%`),
@@ -89,7 +89,7 @@ export class MajorService {
     try {
       let entity: MajorEntity = null;
       if (data.id && !options.createNew) {
-        for (const subject of data.subjects) {
+        for (const subject of data.items) {
           await this.upsertSubject({ ...subject, majorId: data.id });
         }
         entity = await this.getMajorById(data.id);
@@ -105,14 +105,14 @@ export class MajorService {
       result.data = {
         id: entity.id,
         name: entity.name,
-        subjects: [],
+        items: [],
       };
-      for (const subject of data.subjects) {
+      for (const subject of data.items) {
         const upsert = await this.upsertSubject({
           ...subject,
           majorId: entity.id,
         });
-        result.data.subjects.push(upsert.data);
+        result.data.items.push(upsert.data);
       }
     } catch (error) {
       this.logger.error(
@@ -126,21 +126,29 @@ export class MajorService {
     return result;
   }
 
-  async upsertSubject(data: TSubject): Promise<TResponse<TSubject>> {
-    const result: TResponse<TMajor> = {
+  async upsertSubject(data: TMajorItem): Promise<TResponse<TMajorItem>> {
+    const result: TResponse<TMajorItem> = {
       isBadRequest: false,
       message: '',
       data: null,
     };
     try {
-      let entity: SubjectEntity = null;
+      let entity: MajorItemEntity = null;
       if (data.id) {
         entity = await this.getSubjectById(data.id);
-        entity.name = data.name ?? entity.name;
-        entity.code = data.code ?? entity.code;
-        entity.credit = data.credit ?? entity.credit;
-        entity.prerequisites = data.prerequisites ?? entity.prerequisites;
         entity.majorId = data.majorId ?? entity.majorId;
+        // New fields
+        entity.genCode = data.genCode ?? entity.genCode;
+        entity.parentGenCode = data.parentGenCode ?? entity.parentGenCode;
+        entity.stt = data.stt ?? entity.stt;
+        entity.code = data.code ?? entity.code;
+        entity.name = data.name ?? entity.name;
+        entity.credit = data.credit ?? entity.credit;
+        entity.level = data.level ?? entity.level;
+        entity.selectionRule = data.selectionRule ?? entity.selectionRule;
+        entity.minCredits = data.minCredits ?? entity.minCredits;
+        entity.minChildren = data.minChildren ?? entity.minChildren;
+        entity.isLeaf = data.isLeaf ?? entity.isLeaf;
         await this.subjectRepository.save(entity);
         result.data = entity;
         return result;
@@ -151,6 +159,14 @@ export class MajorService {
         credit: data.credit,
         prerequisites: data.prerequisites,
         majorId: data.majorId,
+        genCode: data.genCode,
+        parentGenCode: data.parentGenCode,
+        stt: data.stt,
+        level: data.level,
+        selectionRule: data.selectionRule,
+        minCredits: data.minCredits,
+        minChildren: data.minChildren,
+        isLeaf: data.isLeaf,
       });
       await this.subjectRepository.save(entity);
       result.data = entity;
