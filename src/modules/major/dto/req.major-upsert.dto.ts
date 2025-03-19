@@ -1,6 +1,12 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
-import { TSubject } from '../major.type';
+import {
+  IsArray,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsBoolean,
+} from 'class-validator';
+import { TMajorItem } from '../major.type';
 
 export class RequestUpsertSubjectDto {
   @ApiPropertyOptional()
@@ -30,6 +36,46 @@ export class RequestUpsertSubjectDto {
   @IsArray()
   @IsOptional()
   prerequisites?: string[];
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  genCode?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  parentGenCode?: string | null;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  stt?: string;
+
+  @ApiPropertyOptional()
+  @IsNumber()
+  @IsOptional()
+  level?: number;
+
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  selectionRule?: 'ALL' | 'ONE' | 'MULTI' | null;
+
+  @ApiPropertyOptional()
+  @IsNumber()
+  @IsOptional()
+  minCredits?: number | null;
+
+  @ApiPropertyOptional()
+  @IsNumber()
+  @IsOptional()
+  minChildren?: number | null;
+
+  @ApiPropertyOptional()
+  @IsBoolean()
+  @IsOptional()
+  isLeaf?: boolean;
 }
 
 export class RequestUpsertMajorDto {
@@ -49,5 +95,5 @@ export class RequestUpsertMajorDto {
   })
   @IsArray()
   @IsOptional()
-  subjects?: TSubject[];
+  items?: TMajorItem[];
 }

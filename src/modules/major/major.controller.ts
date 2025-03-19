@@ -7,6 +7,7 @@ import {
   Res,
   UploadedFile,
   UseInterceptors,
+  Param,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -67,7 +68,7 @@ export class MajorController {
       '```json\n' +
       '{\n' +
       '  "name": "Alice",\n' +
-      '  "subjects": [\n' +
+      '  "items": [\n' +
       '    {\n' +
       '      "name": "string",\n' +
       '      "code": "string",\n' +
@@ -93,5 +94,13 @@ export class MajorController {
     return await this.majorService.upsertMajor(result.data, {
       createNew: true,
     });
+  }
+
+  @Get(':id/detail')
+  async getMajorById(@Param('id') id: string) {
+    if (!id) {
+      throw new BadRequestException('Major ID is required');
+    }
+    return await this.majorService.getMajorById(Number(id));
   }
 }

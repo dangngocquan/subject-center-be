@@ -92,7 +92,7 @@ window.onload = function() {
           "parameters": [],
           "requestBody": {
             "required": true,
-            "description": "Upload a JSON file containing an object with a \"name\" field and a list of subjects.\n\n### **Example Format:**\n```json\n{\n  \"name\": \"Alice\",\n  \"subjects\": [\n    {\n      \"name\": \"string\",\n      \"code\": \"string\",\n      \"credit\": 0,\n      \"prerequisites\": [\"string\"]\n    }\n  ]\n",
+            "description": "Upload a JSON file containing an object with a \"name\" field and a list of subjects.\n\n### **Example Format:**\n```json\n{\n  \"name\": \"Alice\",\n  \"items\": [\n    {\n      \"name\": \"string\",\n      \"code\": \"string\",\n      \"credit\": 0,\n      \"prerequisites\": [\"string\"]\n    }\n  ]\n",
             "content": {
               "multipart/form-data": {
                 "schema": {
@@ -113,6 +113,29 @@ window.onload = function() {
             }
           },
           "summary": "Upload a JSON file and extract data",
+          "tags": [
+            "Major"
+          ]
+        }
+      },
+      "/api/v1/majors/{id}/detail": {
+        "get": {
+          "operationId": "MajorController_getMajorById",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
           "tags": [
             "Major"
           ]

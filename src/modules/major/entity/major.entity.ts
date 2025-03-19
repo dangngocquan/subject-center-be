@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { SubjectEntity } from './subject.entity';
+import { MajorItemEntity } from './major-item.entity';
 
 @Entity({ name: 'major' })
 export class MajorEntity {
@@ -41,6 +41,6 @@ export class MajorEntity {
   })
   updatedAt!: Date;
 
-  @OneToMany(() => SubjectEntity, (subject) => subject.major)
-  subjects: SubjectEntity[];
+  @OneToMany(() => MajorItemEntity, (item) => item.major)
+  items: MajorItemEntity[];
 }
