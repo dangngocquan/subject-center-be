@@ -170,6 +170,7 @@ export class PlanController {
     if (result.isBadRequest) {
       throw new HttpException(result.message, result.status ?? 400);
     }
+    return result;
   }
 
   @Get(':id/summary/subject')

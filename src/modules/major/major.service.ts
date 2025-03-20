@@ -24,6 +24,11 @@ export class MajorService {
           items: true,
         },
         where: { id },
+        order: {
+          items: {
+            orderIndex: 'ASC',
+          },
+        },
       });
     } catch (error) {
       this.logger.error(

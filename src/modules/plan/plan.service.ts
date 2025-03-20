@@ -40,6 +40,11 @@ export class PlanService {
           items: true,
         },
         where: { id },
+        order: {
+          items: {
+            orderIndex: 'ASC',
+          },
+        },
       });
     } catch (error) {
       this.logger.error(
@@ -76,11 +81,13 @@ export class PlanService {
       data: [],
     };
     try {
-      console.log(user);
       result.data = await this.planRepository.find({
         where: {
           name: ILike(`%${filter?.name?.toLocaleLowerCase()?.trim() ?? ''}%`),
           accountId: In(user.accounts.map((account) => account.id)),
+        },
+        order: {
+          orderIndex: 'ASC',
         },
       });
     } catch (error) {
@@ -99,11 +106,30 @@ export class PlanService {
     user: TUser,
     data: TPlan,
     options?: { createNew?: boolean },
-  ): Promise<TResponse<TPlan>> {
-    const result: TResponse<TPlan> = {
+  ): Promise<
+    TResponse<{
+      plan: TPlan;
+      result: {
+        code: string;
+        message: string;
+      }[];
+    }>
+  > {
+    const result: TResponse<{
+      plan: TPlan;
+      result: {
+        name: string;
+        code: string;
+        status: 'SUCCEEDED' | 'FAILED';
+        message: string;
+      }[];
+    }> = {
       isBadRequest: false,
       message: '',
-      data: null,
+      data: {
+        plan: null,
+        result: [],
+      },
       status: 201,
     };
     try {
@@ -123,12 +149,30 @@ export class PlanService {
           return result;
         }
         for (const subject of data.items) {
-          await this.upsertPlanItem({ ...subject, planId: entity.id });
+          const item = await this.upsertPlanItem({
+            ...subject,
+            planId: entity.id,
+          });
+          if (item.isBadRequest) {
+            result.data.result.push({
+              code: subject.code,
+              message: item.message,
+              status: 'FAILED',
+              name: subject.name,
+            });
+          } else {
+            result.data.result.push({
+              code: subject.code,
+              message: '',
+              status: 'SUCCEEDED',
+              name: subject.name,
+            });
+          }
         }
         entity = await this.getPlanById(data.id);
         entity.name = data.name ?? entity.name;
         await this.planRepository.save(entity);
-        result.data = entity;
+        result.data.plan = entity;
         return result;
       }
       entity = await this.planRepository.create({
@@ -136,7 +180,7 @@ export class PlanService {
         accountId: user.accounts[0].id,
       });
       await this.planRepository.save(entity);
-      result.data = {
+      result.data.plan = {
         id: entity.id,
         name: entity.name,
         accountId: entity.accountId,
@@ -147,7 +191,22 @@ export class PlanService {
           ...subject,
           planId: entity.id,
         });
-        result.data.items.push(upsert.data);
+        if (upsert.isBadRequest) {
+          result.data.result.push({
+            code: subject.code,
+            message: upsert.message,
+            status: 'FAILED',
+            name: subject.name,
+          });
+        } else {
+          result.data.result.push({
+            code: subject.code,
+            message: '',
+            status: 'SUCCEEDED',
+            name: subject.name,
+          });
+        }
+        result.data.plan.items.push(upsert.data);
       }
     } catch (error) {
       this.logger.error(
