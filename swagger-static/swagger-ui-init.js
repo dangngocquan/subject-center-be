@@ -163,11 +163,66 @@ window.onload = function() {
             }
           ],
           "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ResponsePlanListDto"
+                    }
+                  }
+                }
+              }
+            },
             "401": {
               "description": "Unauthorized"
             }
           },
           "summary": "Get plans of user",
+          "tags": [
+            "Plan"
+          ]
+        },
+        "post": {
+          "operationId": "PlanController_createPlan",
+          "parameters": [
+            {
+              "name": "token",
+              "in": "header",
+              "description": "token",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestUpsertPlanDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ResponsePlanUpsertDto"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          },
+          "summary": "Create new plan",
           "tags": [
             "Plan"
           ]
@@ -179,7 +234,7 @@ window.onload = function() {
           "parameters": [],
           "responses": {
             "200": {
-              "description": ""
+              "description": "Download sample plan JSON file"
             }
           },
           "tags": [
@@ -209,6 +264,9 @@ window.onload = function() {
             }
           ],
           "responses": {
+            "200": {
+              "description": "Download plan JSON file"
+            },
             "401": {
               "description": "Unauthorized"
             }
@@ -250,6 +308,16 @@ window.onload = function() {
             }
           },
           "responses": {
+            "201": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ResponsePlanUpsertDto"
+                  }
+                }
+              }
+            },
             "401": {
               "description": "Unauthorized"
             }
@@ -284,6 +352,16 @@ window.onload = function() {
             }
           },
           "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ResponsePlanUpsertDto"
+                  }
+                }
+              }
+            },
             "401": {
               "description": "Unauthorized"
             }
@@ -326,6 +404,16 @@ window.onload = function() {
             }
           },
           "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ResponsePlanUpsertDto"
+                  }
+                }
+              }
+            },
             "401": {
               "description": "Unauthorized"
             }
@@ -356,6 +444,16 @@ window.onload = function() {
             }
           ],
           "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ResponsePlanDeleteDto"
+                  }
+                }
+              }
+            },
             "401": {
               "description": "Unauthorized"
             }
@@ -388,6 +486,16 @@ window.onload = function() {
             }
           ],
           "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ResponsePlanDetailsDto"
+                  }
+                }
+              }
+            },
             "401": {
               "description": "Unauthorized"
             }
@@ -418,6 +526,123 @@ window.onload = function() {
           },
           "required": [
             "token"
+          ]
+        },
+        "ResponsePlanListDto": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "number"
+            },
+            "name": {
+              "type": "string"
+            },
+            "accountId": {
+              "type": "number"
+            },
+            "createdAt": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "updatedAt": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "accountId",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        "ResponsePlanItemDto": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "number"
+            },
+            "name": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "credit": {
+              "type": "number"
+            },
+            "prerequisites": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "grade4": {
+              "type": "number"
+            },
+            "gradeLatin": {
+              "type": "string"
+            },
+            "planId": {
+              "type": "number"
+            },
+            "createdAt": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "updatedAt": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "code",
+            "credit",
+            "prerequisites",
+            "grade4",
+            "gradeLatin",
+            "planId",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        "ResponsePlanUpsertDto": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "number"
+            },
+            "name": {
+              "type": "string"
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ResponsePlanItemDto"
+              }
+            },
+            "accountId": {
+              "type": "number"
+            },
+            "createdAt": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "updatedAt": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "items",
+            "accountId",
+            "createdAt",
+            "updatedAt"
           ]
         },
         "RequestUpsertPlanItemDto": {
@@ -465,6 +690,53 @@ window.onload = function() {
               }
             }
           }
+        },
+        "ResponsePlanDetailsDto": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "number"
+            },
+            "name": {
+              "type": "string"
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ResponsePlanItemDto"
+              }
+            },
+            "accountId": {
+              "type": "number"
+            },
+            "createdAt": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "updatedAt": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "items",
+            "accountId",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        "ResponsePlanDeleteDto": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "success"
+          ]
         }
       }
     }
