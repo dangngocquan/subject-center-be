@@ -33,6 +33,35 @@ export class PlanService {
     private readonly gradeConversionService: GradeConversionService,
   ) {}
 
+  async isOwnerPlan(
+    accountIds: number[],
+    planId: number,
+  ): Promise<TResponse<{ isOwner: boolean }>> {
+    const result: TResponse<{ isOwner: boolean }> = {
+      isBadRequest: false,
+      message: '',
+      data: { isOwner: false },
+    };
+    try {
+      const entities = await this.planRepository.find({
+        where: {
+          id: planId,
+          accountId: In(accountIds),
+        },
+      });
+      result.data.isOwner = entities.length > 0;
+    } catch (error) {
+      this.logger.error(
+        `[isOwnerPlan]: Failed to check owner plan, error: ${
+          error.message || error.toString()
+        }`,
+      );
+      result.isBadRequest = true;
+      result.message = `${error.message || error.toString()}`;
+    }
+    return result;
+  }
+
   async getPlanById(id: number): Promise<PlanEntity> {
     try {
       return await this.planRepository.findOne({
@@ -269,7 +298,6 @@ export class PlanService {
   }
 
   async getPlanCreditSummary(
-    user: TUser,
     planId: number,
   ): Promise<TResponse<TPlanCreditSummary>> {
     const result: TResponse<TPlanCreditSummary> = {
@@ -294,12 +322,6 @@ export class PlanService {
     };
     try {
       const plan: TPlan = await this.getPlanById(planId);
-      if (!user.accounts.map((a) => a.id).includes(plan.accountId)) {
-        result.isBadRequest = true;
-        result.message = 'Unauthorized';
-        result.status = 401;
-        return result;
-      }
       if (!plan) {
         result.isBadRequest = true;
         result.message = 'Plan not found';
@@ -355,9 +377,7 @@ export class PlanService {
           : 0;
     } catch (error) {
       this.logger.error(
-        `[getPlanDetail]: Failed to get plan detail for user ${JSON.stringify(
-          user,
-        )} and plan ${planId}, error: ${error.message || error.toString()}`,
+        `[getPlanDetail]: Failed to get plan detail for user and plan ${planId}, error: ${error.message || error.toString()}`,
       );
       result.isBadRequest = true;
       result.message = `${error.message || error.toString()}`;
@@ -523,10 +543,7 @@ export class PlanService {
     }
   }
 
-  async getPlanSummary(
-    user: TUser,
-    planId: number,
-  ): Promise<TResponse<TPlanSummary>> {
+  async getPlanSummary(planId: number): Promise<TResponse<TPlanSummary>> {
     const result: TResponse<TPlanSummary> = {
       isBadRequest: false,
       message: '',
@@ -534,7 +551,7 @@ export class PlanService {
       status: 200,
     };
     try {
-      const creditsSummary = await this.getPlanCreditSummary(user, planId);
+      const creditsSummary = await this.getPlanCreditSummary(planId);
       const cpaSummary = await this.getPlanCPASummary(creditsSummary.data);
       result.data = {
         credits: creditsSummary.data,
@@ -542,9 +559,36 @@ export class PlanService {
       };
     } catch (error) {
       this.logger.error(
-        `[getPlanSummary]: Failed to get plan summary for user ${JSON.stringify(
-          user,
-        )} and plan ${planId}, error: ${error.message || error.toString()}`,
+        `[getPlanSummary]: Failed to get plan summary for user and plan ${planId}, error: ${error.message || error.toString()}`,
+      );
+      result.isBadRequest = true;
+      result.message = `${error.message || error.toString()}`;
+      result.status = 500;
+    }
+    return result;
+  }
+
+  async deletePlan(planId: number): Promise<TResponse<{ success: boolean }>> {
+    const result: TResponse<{ success: boolean }> = {
+      isBadRequest: false,
+      message: '',
+      data: { success: false },
+    };
+    try {
+      const plan = await this.getPlanById(planId);
+      if (!plan) {
+        result.isBadRequest = true;
+        result.message = 'Plan not found';
+        result.status = 404;
+        return result;
+      }
+      await this.planRepository.delete(planId);
+      result.data.success = true;
+    } catch (error) {
+      this.logger.error(
+        `[deletePlan]: Failed to delete plan ${planId}, error: ${
+          error.message || error.toString()
+        }`,
       );
       result.isBadRequest = true;
       result.message = `${error.message || error.toString()}`;

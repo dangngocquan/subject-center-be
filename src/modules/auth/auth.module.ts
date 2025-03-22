@@ -1,25 +1,27 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AESModule } from '../aes/aes.module';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import jwtConfig from './config/jwt.config';
-import appConfig from '../../configs/app.config';
 import { JwtModule } from '@nestjs/jwt';
-import { UserModule } from '../user/user.module';
+import { AuthenticationService } from './authentication/authentication.service';
+import jwtConfig from './authentication/config/jwt.config';
+import securityConfig from './authentication/config/security.config';
+import { AuthorizationService } from './authorization/authorization.service';
 
-@Module({
-  imports: [
-    AESModule,
-    JwtModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [appConfig, jwtConfig],
-    }),
-    forwardRef(() => UserModule),
-  ],
-  controllers: [AuthController],
-  providers: [AuthService],
-  exports: [AuthService],
-})
-export class AuthModule {}
+@Module({})
+export class AuthModule {
+  static forRoot(): DynamicModule {
+    return {
+      module: AuthModule,
+      imports: [
+        JwtModule,
+        ConfigModule.forRoot({
+          isGlobal: true,
+          load: [securityConfig, jwtConfig],
+        }),
+      ],
+      controllers: [],
+      providers: [AuthenticationService, AuthorizationService],
+      exports: [AuthenticationService, AuthorizationService],
+      global: true,
+    };
+  }
+}

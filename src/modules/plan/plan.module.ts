@@ -7,7 +7,6 @@ import { PlanItemEntity } from './entity/plan-item.entity';
 import { PlanEntity } from './entity/plan.entity';
 import { PlanController } from './plan.controller';
 import { PlanService } from './plan.service';
-import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -15,7 +14,6 @@ import { AuthModule } from '../auth/auth.module';
     ImportModule,
     ExportModule,
     GradeConversionModule,
-    AuthModule,
   ],
   controllers: [PlanController],
   providers: [PlanService],

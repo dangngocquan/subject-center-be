@@ -171,38 +171,6 @@ window.onload = function() {
           "tags": [
             "Plan"
           ]
-        },
-        "patch": {
-          "operationId": "PlanController_upsertPlan",
-          "parameters": [
-            {
-              "name": "token",
-              "in": "header",
-              "description": "token",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RequestUpsertPlanDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "401": {
-              "description": "Unauthorized"
-            }
-          },
-          "summary": "Update plan",
-          "tags": [
-            "Plan"
-          ]
         }
       },
       "/api/v1/plans/export/sample/json": {
@@ -219,12 +187,12 @@ window.onload = function() {
           ]
         }
       },
-      "/api/v1/plans/{id}/export/json": {
+      "/api/v1/plans/{planId}/export/json": {
         "get": {
           "operationId": "PlanController_downloadPlanJson",
           "parameters": [
             {
-              "name": "id",
+              "name": "planId",
               "required": true,
               "in": "path",
               "schema": {
@@ -266,7 +234,7 @@ window.onload = function() {
           ],
           "requestBody": {
             "required": true,
-            "description": "Upload a JSON file containing an object with a \"name\" field and a list of subjects.\n\n### **Example Format:**\n```json\n{\n  \"name\": \"Your plan name\",\n  \"items\": [\n    {\n      \"name\": \"string\",\n      \"code\": \"string\",\n      \"credit\": 0,\n      \"prerequisites\": [\"string\"]\n      \"gradeLatin\": \"string\"\n    }\n  ]\n",
+            "description": "Upload a JSON file containing an object with a \"name\" field and a list of items.\n\n### **Example Format:**\n```json\n{\n  \"name\": \"Your plan name\",\n  \"items\": [\n    {\n      \"name\": \"string\",\n      \"code\": \"string\",\n      \"credit\": 0,\n      \"prerequisites\": [\"string\"],\n      \"grade4\": 0,\n      \"gradeLatin\": \"string\"\n    }\n  ]\n}\n```",
             "content": {
               "multipart/form-data": {
                 "schema": {
@@ -292,18 +260,10 @@ window.onload = function() {
           ]
         }
       },
-      "/api/v1/plans/{id}/item": {
+      "/api/v1/plans/{planId}/item": {
         "patch": {
           "operationId": "PlanController_upsertPlanItem",
           "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            },
             {
               "name": "token",
               "in": "header",
@@ -328,18 +288,58 @@ window.onload = function() {
               "description": "Unauthorized"
             }
           },
-          "summary": "Update plan item",
+          "summary": "",
           "tags": [
             "Plan"
           ]
         }
       },
-      "/api/v1/plans/{id}/summary/subject": {
-        "get": {
-          "operationId": "PlanController_getPlanDetails",
+      "/api/v1/plans/{planId}": {
+        "patch": {
+          "operationId": "PlanController_upsertPlan",
           "parameters": [
             {
-              "name": "id",
+              "name": "planId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "token",
+              "in": "header",
+              "description": "token",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestUpsertPlanDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "401": {
+              "description": "Unauthorized"
+            }
+          },
+          "summary": "",
+          "tags": [
+            "Plan"
+          ]
+        },
+        "delete": {
+          "operationId": "PlanController_deletePlan",
+          "parameters": [
+            {
+              "name": "planId",
               "required": true,
               "in": "path",
               "schema": {
@@ -360,7 +360,39 @@ window.onload = function() {
               "description": "Unauthorized"
             }
           },
-          "summary": "Get plan details",
+          "summary": "",
+          "tags": [
+            "Plan"
+          ]
+        }
+      },
+      "/api/v1/plans/{planId}/details": {
+        "get": {
+          "operationId": "PlanController_getPlanDetails",
+          "parameters": [
+            {
+              "name": "planId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "token",
+              "in": "header",
+              "description": "token",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "401": {
+              "description": "Unauthorized"
+            }
+          },
+          "summary": "",
           "tags": [
             "Plan"
           ]

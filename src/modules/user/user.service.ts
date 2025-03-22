@@ -43,9 +43,10 @@ export class UsersService {
         where: { id },
       });
     } catch (error) {
+      console.log(error);
       this.logger.error(
         `[findById]: Failed to find user by id ${id}, error: ${
-          error.message || error.toString()
+          error?.message || error?.toString()
         }`,
       );
       return null;
@@ -119,7 +120,7 @@ export class UsersService {
         }`,
       );
       result.isBadRequest = true;
-      result.message = `${error.message || error.toString()}`;
+      result.message = `${error?.message || error?.toString()}`;
     }
     return result;
   }

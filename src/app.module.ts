@@ -11,9 +11,11 @@ import { MajorModule } from './modules/major/major.module';
 import { ExportModule } from './modules/export/export.module';
 import { ImportModule } from './modules/import/import.module';
 import { PlanModule } from './modules/plan/plan.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'swagger-static'),
       serveRoot: process.env.NODE_ENV === 'development' ? '/' : '/docs',

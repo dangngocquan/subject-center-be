@@ -1,10 +1,10 @@
 import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthService } from '../auth/auth.service';
 import { RequestGoogleVerifyTokenDto } from '../google/dto/req.google-verify-token.dto';
 import { GoogleService } from '../google/google.service';
 import { EPlatformProvider, EUserRole, TUser } from './type/user.type';
 import { UsersService } from './user.service';
+import { AuthenticationService } from '../auth/authentication/authentication.service';
 
 @Controller({
   path: 'v1/users',
@@ -14,7 +14,7 @@ export class UserController {
   constructor(
     private readonly userService: UsersService,
     private readonly googleService: GoogleService,
-    private readonly authService: AuthService,
+    private readonly authService: AuthenticationService,
   ) {}
 
   @Post('auth/google')

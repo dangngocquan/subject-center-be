@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   Param,
@@ -16,7 +17,17 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import { ApiAuthToken, AuthTokenUser } from '../auth/auth.decorator';
+import { CheckAuthenticationAndAuthorization } from '../auth/auth.decorator';
+import {
+  AuthenticationUser,
+  CheckAuthentication,
+} from '../auth/authentication/authentication.decorator';
+import { EAuthenticationType } from '../auth/authentication/authentication.type';
+import {
+  EAuthorizationPermission,
+  EAuthorizationType,
+  EParamKey,
+} from '../auth/authorization/authorization.type';
 import { ExportService } from '../export/export.service';
 import { ImportService } from '../import/import.service';
 import { TUser } from '../user/type/user.type';
@@ -38,14 +49,13 @@ export class PlanController {
   ) {}
 
   @Get()
-  @ApiAuthToken({
+  @CheckAuthentication(EAuthenticationType.TOKEN, {
     summary: 'Get plans of user',
   })
   async getPlans(
-    @AuthTokenUser() user: TUser,
+    @AuthenticationUser() user: TUser,
     @Query() query: RequestPlanListQueryDto,
   ) {
-    console.log({ user });
     return await this.planService.getPlans(user, { name: query?.name ?? null });
   }
 
@@ -73,12 +83,17 @@ export class PlanController {
     res.send(jsonBuffer);
   }
 
-  @Get(':id/export/json')
-  @ApiAuthToken()
+  @Get(`:${EParamKey.PLAN_ID}/export/json`)
+  @CheckAuthenticationAndAuthorization(
+    EAuthenticationType.TOKEN,
+    EAuthorizationType.PLAN,
+    [EAuthorizationPermission.OWNER],
+    { summary: 'Export plan' },
+  )
   async downloadPlanJson(
     @Res() res: Response,
-    @Param('id') id: string,
-    @AuthTokenUser() user: TUser,
+    @Param(`${EParamKey.PLAN_ID}`) id: string,
+    @AuthenticationUser() user: TUser,
   ) {
     const data = await this.planService.getPlanById(parseInt(id));
     if (!data) {
@@ -97,13 +112,13 @@ export class PlanController {
   }
 
   @Post('import/json')
-  @ApiAuthToken()
+  @CheckAuthentication(EAuthenticationType.TOKEN)
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Upload a JSON file and extract data' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description:
-      'Upload a JSON file containing an object with a "name" field and a list of subjects.\n\n' +
+      'Upload a JSON file containing an object with a "name" field and a list of items.\n\n' +
       '### **Example Format:**\n' +
       '```json\n' +
       '{\n' +
@@ -113,10 +128,13 @@ export class PlanController {
       '      "name": "string",\n' +
       '      "code": "string",\n' +
       '      "credit": 0,\n' +
-      '      "prerequisites": ["string"]\n' +
+      '      "prerequisites": ["string"],\n' +
+      '      "grade4": 0,\n' +
       '      "gradeLatin": "string"\n' +
       '    }\n' +
-      '  ]\n',
+      '  ]\n' +
+      '}\n' +
+      '```',
     schema: {
       type: 'object',
       properties: {
@@ -128,7 +146,7 @@ export class PlanController {
     },
   })
   async upsertPlanByImportJson(
-    @AuthTokenUser() userInfo: TUser,
+    @AuthenticationUser() userInfo: TUser,
     @UploadedFile() file: Express.Multer.File,
   ) {
     const result = await this.importService.importJson<TPlan>(file);
@@ -146,43 +164,63 @@ export class PlanController {
     );
   }
 
-  @Patch(':id/item')
-  @ApiAuthToken({ summary: 'Update plan item' })
-  async upsertPlanItem(
-    @AuthTokenUser() userInfo: TUser,
-    @Body() data: RequestUpsertPlanItemDto,
-    @Param('id') id: string,
-  ) {
-    const plan = await this.planService.getPlanById(parseInt(id));
-    if (!userInfo.accounts.map((a) => a.id).includes(plan.accountId)) {
-      throw new UnauthorizedException('Permission denied');
-    }
+  @Patch(`:${EParamKey.PLAN_ID}/item`)
+  @CheckAuthenticationAndAuthorization(
+    EAuthenticationType.TOKEN,
+    EAuthorizationType.PLAN,
+    [EAuthorizationPermission.OWNER],
+    { summary: 'Update plan item' },
+  )
+  async upsertPlanItem(@Body() data: RequestUpsertPlanItemDto) {
     return await this.planService.upsertPlanItem(data);
   }
 
-  @Patch()
-  @ApiAuthToken({ summary: 'Update plan' })
+  @Patch(`:${EParamKey.PLAN_ID}`)
+  @CheckAuthenticationAndAuthorization(
+    EAuthenticationType.TOKEN,
+    EAuthorizationType.PLAN,
+    [EAuthorizationPermission.OWNER],
+    { summary: 'Update plan' },
+  )
   async upsertPlan(
-    @AuthTokenUser() userInfo: TUser,
+    @AuthenticationUser() userInfo: TUser,
     @Body() data: RequestUpsertPlanDto,
+    @Param(`${EParamKey.PLAN_ID}`) planId: string,
   ) {
-    const result = await this.planService.upsertPlan(userInfo, data);
+    const result = await this.planService.upsertPlan(userInfo, {
+      ...data,
+      id: Number(planId),
+    });
     if (result.isBadRequest) {
       throw new HttpException(result.message, result.status ?? 400);
     }
     return result;
   }
 
-  @Get(':id/summary/subject')
-  @ApiAuthToken({ summary: 'Get plan details' })
-  async getPlanDetails(
-    @AuthTokenUser() userInfo: TUser,
-    @Param('id') id: string,
-  ) {
-    const result = await this.planService.getPlanSummary(
-      userInfo,
-      parseInt(id),
-    );
+  @Get(`:${EParamKey.PLAN_ID}/details`)
+  @CheckAuthenticationAndAuthorization(
+    EAuthenticationType.TOKEN,
+    EAuthorizationType.PLAN,
+    [EAuthorizationPermission.OWNER],
+    { summary: 'Get plan details' },
+  )
+  async getPlanDetails(@Param(`${EParamKey.PLAN_ID}`) id: string) {
+    const result = await this.planService.getPlanSummary(Number(id));
+    if (result.isBadRequest) {
+      throw new HttpException(result.message, result.status ?? 400);
+    }
+    return result.data;
+  }
+
+  @Delete(`:${EParamKey.PLAN_ID}`)
+  @CheckAuthenticationAndAuthorization(
+    EAuthenticationType.TOKEN,
+    EAuthorizationType.PLAN,
+    [EAuthorizationPermission.OWNER],
+    { summary: 'Delete plan' },
+  )
+  async deletePlan(@Param(`${EParamKey.PLAN_ID}`) planId: string) {
+    const result = await this.planService.deletePlan(parseInt(planId));
     if (result.isBadRequest) {
       throw new HttpException(result.message, result.status ?? 400);
     }
