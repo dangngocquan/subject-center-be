@@ -64,7 +64,14 @@ window.onload = function() {
           ],
           "responses": {
             "200": {
-              "description": ""
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ResponseMajorListDto"
+                  }
+                }
+              }
             }
           },
           "tags": [
@@ -78,7 +85,14 @@ window.onload = function() {
           "parameters": [],
           "responses": {
             "200": {
-              "description": ""
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ResponseSampleJsonDto"
+                  }
+                }
+              }
             }
           },
           "tags": [
@@ -92,7 +106,7 @@ window.onload = function() {
           "parameters": [],
           "requestBody": {
             "required": true,
-            "description": "Upload a JSON file containing an object with a \"name\" field and a list of subjects.\n\n### **Example Format:**\n```json\n{\n  \"name\": \"Alice\",\n  \"items\": [\n    {\n      \"name\": \"string\",\n      \"code\": \"string\",\n      \"credit\": 0,\n      \"prerequisites\": [\"string\"]\n    }\n  ]\n",
+            "description": "Upload a JSON file containing an object with a \"name\" field and a list of items (subjects).\n\n### **Structure:**\n```json\n{\n  \"name\": \"string\",\n  \"items\": [\n    {\n      \"name\": \"string\",\n      \"code\": \"string\",\n      \"credit\": \"number\",\n      \"prerequisites\": [\"string\"],\n      \"genCode\": \"string\",\n      \"parentGenCode\": \"string | null\",\n      \"stt\": \"string\",\n      \"level\": \"number\",\n      \"selectionRule\": \"ALL | ONE | MULTI | null\",\n      \"minCredits\": \"number | null\",\n      \"minChildren\": \"number | null\",\n      \"isLeaf\": \"boolean\"\n    }\n  ]\n}\n```",
             "content": {
               "multipart/form-data": {
                 "schema": {
@@ -109,7 +123,14 @@ window.onload = function() {
           },
           "responses": {
             "201": {
-              "description": ""
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ResponseMajorUpsertDto"
+                  }
+                }
+              }
             }
           },
           "summary": "Upload a JSON file and extract data",
@@ -118,12 +139,12 @@ window.onload = function() {
           ]
         }
       },
-      "/api/v1/majors/{id}/detail": {
+      "/api/v1/majors/{majorId}/detail": {
         "get": {
           "operationId": "MajorController_getMajorById",
           "parameters": [
             {
-              "name": "id",
+              "name": "majorId",
               "required": true,
               "in": "path",
               "schema": {
@@ -133,7 +154,14 @@ window.onload = function() {
           ],
           "responses": {
             "200": {
-              "description": ""
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ResponseMajorDetailDto"
+                  }
+                }
+              }
             }
           },
           "tags": [
@@ -526,6 +554,166 @@ window.onload = function() {
           },
           "required": [
             "token"
+          ]
+        },
+        "ResponseMajorItemDto": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "number"
+            },
+            "name": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "credit": {
+              "type": "number"
+            },
+            "prerequisites": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "majorId": {
+              "type": "number"
+            },
+            "genCode": {
+              "type": "string"
+            },
+            "parentGenCode": {
+              "type": "string",
+              "nullable": true
+            },
+            "stt": {
+              "type": "string"
+            },
+            "level": {
+              "type": "number"
+            },
+            "selectionRule": {
+              "type": "string",
+              "enum": [
+                "ALL",
+                "ONE",
+                "MULTI"
+              ],
+              "nullable": true
+            },
+            "minCredits": {
+              "type": "number",
+              "nullable": true
+            },
+            "minChildren": {
+              "type": "number",
+              "nullable": true
+            },
+            "isLeaf": {
+              "type": "boolean"
+            },
+            "createdAt": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "updatedAt": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          "required": [
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        "ResponseMajorDto": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "number"
+            },
+            "name": {
+              "type": "string"
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ResponseMajorItemDto"
+              }
+            }
+          }
+        },
+        "ResponseMajorListDto": {
+          "type": "object",
+          "properties": {
+            "isBadRequest": {
+              "type": "boolean"
+            },
+            "message": {
+              "type": "string"
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ResponseMajorDto"
+              }
+            }
+          },
+          "required": [
+            "isBadRequest",
+            "message",
+            "data"
+          ]
+        },
+        "ResponseSampleJsonDto": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "required": [
+            "file"
+          ]
+        },
+        "ResponseMajorUpsertDto": {
+          "type": "object",
+          "properties": {
+            "isBadRequest": {
+              "type": "boolean"
+            },
+            "message": {
+              "type": "string"
+            },
+            "data": {
+              "$ref": "#/components/schemas/ResponseMajorDto"
+            }
+          },
+          "required": [
+            "isBadRequest",
+            "message",
+            "data"
+          ]
+        },
+        "ResponseMajorDetailDto": {
+          "type": "object",
+          "properties": {
+            "isBadRequest": {
+              "type": "boolean"
+            },
+            "message": {
+              "type": "string"
+            },
+            "data": {
+              "$ref": "#/components/schemas/ResponseMajorDto"
+            }
+          },
+          "required": [
+            "isBadRequest",
+            "message",
+            "data"
           ]
         },
         "ResponsePlanListDto": {
