@@ -549,7 +549,7 @@ export class PlanService {
     const maxGrade = GRADE_CONVERSION_LATIN_TO_4[EGradeLatin.A_PLUS]; // 4.0
 
     // Tính số tín chỉ tối thiểu của D để đạt a, phần còn lại là A+
-    const creditsD = Math.ceil(
+    const creditsD = Math.floor(
       (a * totalCreditsAffected - maxGrade * remainingCredits) /
         (minGrade - maxGrade),
     );
@@ -578,7 +578,7 @@ export class PlanService {
     for (const [lowerGrade, higherGrade] of gradePairs) {
       const g1 = GRADE_CONVERSION_LATIN_TO_4[lowerGrade];
       const g2 = GRADE_CONVERSION_LATIN_TO_4[higherGrade];
-      const creditsLower = Math.ceil(
+      const creditsLower = Math.floor(
         (a * totalCreditsAffected - g2 * remainingCredits) / (g1 - g2),
       );
       const creditsHigher = remainingCredits - creditsLower;
