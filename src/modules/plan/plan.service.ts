@@ -138,7 +138,9 @@ export class PlanService {
     TResponse<{
       plan: TPlan;
       result: {
+        name: string;
         code: string;
+        status: 'SUCCEEDED' | 'FAILED';
         message: string;
       }[];
     }>
@@ -799,6 +801,159 @@ export class PlanService {
     } catch (error) {
       this.logger.error(
         `[deletePlan]: Failed to delete plan ${planId}, error: ${
+          error.message || error.toString()
+        }`,
+      );
+      result.isBadRequest = true;
+      result.message = `${error.message || error.toString()}`;
+      result.status = 500;
+    }
+    return result;
+  }
+
+  async bulkUpsertPlanItems(
+    planId: number,
+    subjects: {
+      name: string;
+      code: string;
+      credit: number;
+      gradeLatin: string;
+    }[],
+  ): Promise<
+    TResponse<{
+      plan: TPlan;
+      result: {
+        name: string;
+        code: string;
+        gradeLatin: string;
+        status: 'UPDATED' | 'FAILED' | 'NEW';
+        message: string;
+      }[];
+    }>
+  > {
+    const result: TResponse<{
+      plan: TPlan;
+      result: {
+        name: string;
+        code: string;
+        gradeLatin: string;
+        status: 'UPDATED' | 'FAILED' | 'NEW';
+        message: string;
+      }[];
+    }> = {
+      isBadRequest: false,
+      message: '',
+      data: {
+        plan: null,
+        result: [],
+      },
+    };
+
+    try {
+      const plan = await this.getPlanById(planId);
+      if (!plan) {
+        result.isBadRequest = true;
+        result.message = 'Plan not found';
+        result.status = 404;
+        return result;
+      }
+
+      for (const subject of subjects) {
+        try {
+          const existingItem = plan.items.find(
+            (item) => item.code.toLowerCase() === subject.code.toLowerCase(),
+          );
+
+          if (existingItem) {
+            // Update existing item
+            existingItem.name = subject.name;
+            existingItem.credit = subject.credit;
+            existingItem.gradeLatin = subject.gradeLatin;
+            existingItem.grade4 =
+              this.gradeConversionService.convertGradeLatinToGrade4(
+                subject.gradeLatin,
+              );
+            await this.planItemRepository.save(existingItem);
+            result.data.result.push({
+              name: subject.name,
+              code: subject.code,
+              gradeLatin: subject.gradeLatin,
+              status: 'UPDATED',
+              message: '',
+            });
+          } else {
+            // Create new item
+            const newItem = this.planItemRepository.create({
+              name: subject.name,
+              code: subject.code,
+              credit: subject.credit,
+              gradeLatin: subject.gradeLatin,
+              grade4: this.gradeConversionService.convertGradeLatinToGrade4(
+                subject.gradeLatin,
+              ),
+              planId,
+            });
+            await this.planItemRepository.save(newItem);
+            result.data.result.push({
+              name: subject.name,
+              code: subject.code,
+              gradeLatin: subject.gradeLatin,
+              status: 'NEW',
+              message: '',
+            });
+          }
+        } catch (error) {
+          this.logger.error(
+            `[bulkUpsertPlanItems]: Failed to process subject ${JSON.stringify(
+              subject,
+            )}, error: ${error.message || error.toString()}`,
+          );
+          result.data.result.push({
+            name: subject.name,
+            code: subject.code,
+            gradeLatin: subject.gradeLatin,
+            status: 'FAILED',
+            message: error.message || error.toString(),
+          });
+        }
+      }
+
+      result.data.plan = await this.getPlanById(planId);
+    } catch (error) {
+      this.logger.error(
+        `[bulkUpsertPlanItems]: Failed to bulk upsert plan items for plan ${planId}, error: ${
+          error.message || error.toString()
+        }`,
+      );
+      result.isBadRequest = true;
+      result.message = `${error.message || error.toString()}`;
+      result.status = 500;
+    }
+
+    return result;
+  }
+
+  async deletePlanItem(
+    planItemId: number,
+  ): Promise<TResponse<{ success: boolean }>> {
+    const result: TResponse<{ success: boolean }> = {
+      isBadRequest: false,
+      message: '',
+      data: { success: false },
+    };
+    try {
+      const planItem = await this.getPlanItemById(planItemId);
+      if (!planItem) {
+        result.isBadRequest = true;
+        result.message = 'Plan item not found';
+        result.status = 404;
+        return result;
+      }
+      await this.planItemRepository.delete(planItemId);
+      result.data.success = true;
+    } catch (error) {
+      this.logger.error(
+        `[deletePlanItem]: Failed to delete plan item ${planItemId}, error: ${
           error.message || error.toString()
         }`,
       );

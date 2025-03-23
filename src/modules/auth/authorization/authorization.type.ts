@@ -24,4 +24,5 @@ export enum EParamKey {
   PLAN_ID = 'planId',
   USER_ID = 'userId',
   MAJOR_ID = 'majorId',
+  PLAN_ITEM_ID = 'planItemId',
 }

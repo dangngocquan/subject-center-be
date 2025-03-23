@@ -36,6 +36,7 @@ import {
 import { ExportService } from '../export/export.service';
 import { ImportService } from '../import/import.service';
 import { TUser } from '../user/type/user.type';
+import { RequestPlanBulkUpsertItemDto } from './dto/req.plan-bulk-upsert.dto';
 import { RequestUpsertPlanItemDto } from './dto/req.plan-item-upsert.dto';
 import { RequestPlanListQueryDto } from './dto/req.plan-list.dto';
 import { RequestUpsertPlanDto } from './dto/req.plan-upsert.dto';
@@ -276,5 +277,91 @@ export class PlanController {
       throw new HttpException(result.message, result.status ?? 400);
     }
     return result.data;
+  }
+
+  @Delete(`:${EParamKey.PLAN_ID}/items/:${EParamKey.PLAN_ITEM_ID}`)
+  @CheckAuthenticationAndAuthorization(
+    EAuthenticationType.TOKEN,
+    EAuthorizationType.PLAN,
+    [EAuthorizationPermission.OWNER],
+    { summary: 'Delete plan item' },
+  )
+  @ApiResponse({ status: 200, description: 'Plan item deleted successfully' })
+  async deletePlanItem(@Param(`${EParamKey.PLAN_ITEM_ID}`) planItemId: string) {
+    const result = await this.planService.deletePlanItem(parseInt(planItemId));
+    if (result.isBadRequest) {
+      throw new HttpException(result.message, result.status ?? 400);
+    }
+    return result.data;
+  }
+
+  @Patch(`:${EParamKey.PLAN_ID}/items/json`)
+  @CheckAuthenticationAndAuthorization(
+    EAuthenticationType.TOKEN,
+    EAuthorizationType.PLAN,
+    [EAuthorizationPermission.OWNER],
+    { summary: 'Import and bulk upsert plan items from JSON file' },
+  )
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'Upload a JSON file and bulk upsert plan items' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description:
+      'Upload a JSON file containing an object with a "subjects" field.\n\n' +
+      '### **Example Format:**\n' +
+      '```json\n' +
+      '{\n' +
+      '  "subjects": [\n' +
+      '    {\n' +
+      '      "name": "Toán cao cấp",\n' +
+      '      "code": "MATH101",\n' +
+      '      "credit": 3,\n' +
+      '      "gradeLatin": "A"\n' +
+      '    },\n' +
+      '    {\n' +
+      '      "name": "Vật lý đại cương",\n' +
+      '      "code": "PHYS102",\n' +
+      '      "credit": 4,\n' +
+      '      "gradeLatin": "B+"\n' +
+      '    }\n' +
+      '  ]\n' +
+      '}\n' +
+      '```',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Bulk upsert plan items from JSON file',
+    type: ResponsePlanUpsertDto, // Use the updated DTO
+  })
+  async importAndBulkUpsertPlanItems(
+    @Param(`${EParamKey.PLAN_ID}`) planId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const result = await this.importService.importJson<{
+      subjects: RequestPlanBulkUpsertItemDto[];
+    }>(file);
+    if (result.isBadRequest) {
+      throw new HttpException(result.message, result.status ?? 400);
+    }
+    const bulkUpsertResult = await this.planService.bulkUpsertPlanItems(
+      Number(planId),
+      result.data.subjects,
+    );
+    if (bulkUpsertResult.isBadRequest) {
+      throw new HttpException(
+        bulkUpsertResult.message,
+        bulkUpsertResult.status ?? 400,
+      );
+    }
+    return bulkUpsertResult.data;
   }
 }

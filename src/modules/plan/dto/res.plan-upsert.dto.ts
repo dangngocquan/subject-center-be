@@ -1,6 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ResponsePlanItemDto } from './res.plan-item.dto';
 
+class ResponsePlanBulkUpsertResultDto {
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  code: string;
+
+  @ApiProperty()
+  gradeLatin: string;
+
+  @ApiProperty()
+  status: 'UPDATED' | 'FAILED' | 'NEW';
+
+  @ApiProperty()
+  message: string;
+}
+
 export class ResponsePlanUpsertDto {
   @ApiProperty()
   id: number;
@@ -19,4 +36,7 @@ export class ResponsePlanUpsertDto {
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty({ type: [ResponsePlanBulkUpsertResultDto], required: false })
+  result?: ResponsePlanBulkUpsertResultDto[];
 }

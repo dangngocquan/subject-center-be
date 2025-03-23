@@ -65,6 +65,23 @@ class ResponsePlanCPASummaryDto {
   withoutImprovements: ResponsePlanCPADto;
 }
 
+class ResponsePlanBulkUpsertResultDto {
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  code: string;
+
+  @ApiProperty()
+  gradeLatin: string;
+
+  @ApiProperty()
+  status: 'UPDATED' | 'FAILED' | 'NEW';
+
+  @ApiProperty()
+  message: string;
+}
+
 export class ResponsePlanDetailsDto {
   @ApiProperty()
   id: number;
@@ -89,4 +106,7 @@ export class ResponsePlanDetailsDto {
 
   @ApiProperty({ type: ResponsePlanCPASummaryDto })
   cpa: ResponsePlanCPASummaryDto;
+
+  @ApiProperty({ type: [ResponsePlanBulkUpsertResultDto], required: false })
+  result?: ResponsePlanBulkUpsertResultDto[];
 }

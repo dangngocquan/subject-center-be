@@ -533,6 +533,100 @@ window.onload = function() {
             "Plan"
           ]
         }
+      },
+      "/api/v1/plans/{planId}/items/{planItemId}": {
+        "delete": {
+          "operationId": "PlanController_deletePlanItem",
+          "parameters": [
+            {
+              "name": "planItemId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "token",
+              "in": "header",
+              "description": "token",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Plan item deleted successfully"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          },
+          "summary": "",
+          "tags": [
+            "Plan"
+          ]
+        }
+      },
+      "/api/v1/plans/{planId}/items/json": {
+        "patch": {
+          "operationId": "PlanController_importAndBulkUpsertPlanItems",
+          "parameters": [
+            {
+              "name": "planId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "token",
+              "in": "header",
+              "description": "token",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "description": "Upload a JSON file containing an object with a \"subjects\" field.\n\n### **Example Format:**\n```json\n{\n  \"subjects\": [\n    {\n      \"name\": \"Toán cao cấp\",\n      \"code\": \"MATH101\",\n      \"credit\": 3,\n      \"gradeLatin\": \"A\"\n    },\n    {\n      \"name\": \"Vật lý đại cương\",\n      \"code\": \"PHYS102\",\n      \"credit\": 4,\n      \"gradeLatin\": \"B+\"\n    }\n  ]\n}\n```",
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "file": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Bulk upsert plan items from JSON file",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ResponsePlanUpsertDto"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          },
+          "summary": "",
+          "tags": [
+            "Plan"
+          ]
+        }
       }
     },
     "info": {
@@ -797,6 +891,33 @@ window.onload = function() {
             "updatedAt"
           ]
         },
+        "ResponsePlanBulkUpsertResultDto": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "gradeLatin": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "code",
+            "gradeLatin",
+            "status",
+            "message"
+          ]
+        },
         "ResponsePlanUpsertDto": {
           "type": "object",
           "properties": {
@@ -822,6 +943,12 @@ window.onload = function() {
             "updatedAt": {
               "format": "date-time",
               "type": "string"
+            },
+            "result": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ResponsePlanBulkUpsertResultDto"
+              }
             }
           },
           "required": [
@@ -1013,6 +1140,12 @@ window.onload = function() {
             },
             "cpa": {
               "$ref": "#/components/schemas/ResponsePlanCPASummaryDto"
+            },
+            "result": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ResponsePlanBulkUpsertResultDto"
+              }
             }
           },
           "required": [
