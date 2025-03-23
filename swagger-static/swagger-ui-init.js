@@ -879,6 +879,109 @@ window.onload = function() {
             }
           }
         },
+        "ResponsePlanCreditsDto": {
+          "type": "object",
+          "properties": {
+            "totalCredits": {
+              "type": "number"
+            },
+            "totalSubjects": {
+              "type": "number"
+            },
+            "totalSubjectsCompleted": {
+              "type": "number"
+            },
+            "totalCreditsCompleted": {
+              "type": "number"
+            },
+            "totalSubjectsIncomplete": {
+              "type": "number"
+            },
+            "totalCreditsIncomplete": {
+              "type": "number"
+            },
+            "totalSubjectsCanImprovement": {
+              "type": "number"
+            },
+            "totalCreditsCanImprovement": {
+              "type": "number"
+            },
+            "currentCPA": {
+              "type": "number"
+            },
+            "grades": {
+              "type": "object"
+            },
+            "totalGradeCompleted": {
+              "type": "number"
+            },
+            "totalGradeCanImprovement": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "totalCredits",
+            "totalSubjects",
+            "totalSubjectsCompleted",
+            "totalCreditsCompleted",
+            "totalSubjectsIncomplete",
+            "totalCreditsIncomplete",
+            "totalSubjectsCanImprovement",
+            "totalCreditsCanImprovement",
+            "currentCPA",
+            "grades",
+            "totalGradeCompleted",
+            "totalGradeCanImprovement"
+          ]
+        },
+        "ResponsePlanCPAMarkDto": {
+          "type": "object",
+          "properties": {
+            "grade4": {
+              "type": "number"
+            },
+            "type": {
+              "type": "string"
+            },
+            "details": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "grade4",
+            "type",
+            "details"
+          ]
+        },
+        "ResponsePlanCPADto": {
+          "type": "object",
+          "properties": {
+            "marks": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ResponsePlanCPAMarkDto"
+              }
+            }
+          },
+          "required": [
+            "marks"
+          ]
+        },
+        "ResponsePlanCPASummaryDto": {
+          "type": "object",
+          "properties": {
+            "withImprovements": {
+              "$ref": "#/components/schemas/ResponsePlanCPADto"
+            },
+            "withoutImprovements": {
+              "$ref": "#/components/schemas/ResponsePlanCPADto"
+            }
+          },
+          "required": [
+            "withImprovements",
+            "withoutImprovements"
+          ]
+        },
         "ResponsePlanDetailsDto": {
           "type": "object",
           "properties": {
@@ -904,6 +1007,12 @@ window.onload = function() {
             "updatedAt": {
               "format": "date-time",
               "type": "string"
+            },
+            "credits": {
+              "$ref": "#/components/schemas/ResponsePlanCreditsDto"
+            },
+            "cpa": {
+              "$ref": "#/components/schemas/ResponsePlanCPASummaryDto"
             }
           },
           "required": [
@@ -912,7 +1021,9 @@ window.onload = function() {
             "items",
             "accountId",
             "createdAt",
-            "updatedAt"
+            "updatedAt",
+            "credits",
+            "cpa"
           ]
         },
         "ResponsePlanDeleteDto": {

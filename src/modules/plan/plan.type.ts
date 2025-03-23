@@ -31,6 +31,10 @@ export type TPlanCPA = {
     type?: EPlanCPAMarkType;
     details?: {
       content?: string;
+      isPossibly?: boolean;
+      cases?: {
+        grades?: { gradeLatin?: EGradeLatin; credits?: number }[];
+      }[];
     };
   }[];
 };
