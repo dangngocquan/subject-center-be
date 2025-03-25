@@ -39,9 +39,13 @@ export class GoogleService {
         .getTokenInfo(token)
         .then((data) => ({ email: data.email }) as TGoogleTokenPayload)
         .catch((reason) => {
-          console.log(reason);
+          result.message = reason.message;
           return { email: null } as TGoogleTokenPayload;
         });
+      if (result.data.email === null) {
+        result.isBadRequest = true;
+        result.message = 'Invalid token google';
+      }
     } catch (error) {
       this.logger.error(
         `[verifyGoogleToken]: Failed to verify google token, error: ${

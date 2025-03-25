@@ -43,7 +43,6 @@ export class UsersService {
         where: { id },
       });
     } catch (error) {
-      console.log(error);
       this.logger.error(
         `[findById]: Failed to find user by id ${id}, error: ${
           error?.message || error?.toString()
