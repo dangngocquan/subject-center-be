@@ -179,10 +179,15 @@ export class PlanService {
           return result;
         }
         for (const subject of data.items) {
-          const item = await this.upsertPlanItem({
-            ...subject,
-            planId: entity.id,
-          });
+          const item = await this.upsertPlanItem(
+            {
+              ...subject,
+              planId: entity.id,
+            },
+            {
+              createNew: !!options?.createNew,
+            },
+          );
           if (item.isBadRequest) {
             result.data.result.push({
               code: subject.code,
@@ -217,10 +222,16 @@ export class PlanService {
         items: [],
       };
       for (const subject of data.items) {
-        const upsert = await this.upsertPlanItem({
-          ...subject,
-          planId: entity.id,
-        });
+        const upsert = await this.upsertPlanItem(
+          {
+            ...subject,
+            planId: entity.id,
+          },
+          {
+            createNew: !!options?.createNew,
+          },
+        );
+        console.log({ upsert });
         if (upsert.isBadRequest) {
           result.data.result.push({
             code: subject.code,
@@ -250,15 +261,20 @@ export class PlanService {
     return result;
   }
 
-  async upsertPlanItem(data: TPlanItem): Promise<TResponse<TPlanItem>> {
+  async upsertPlanItem(
+    data: TPlanItem,
+    options?: { createNew?: boolean },
+  ): Promise<TResponse<TPlanItem>> {
     const result: TResponse<TPlan> = {
       isBadRequest: false,
       message: '',
       data: null,
     };
     try {
+      console.log(data);
       let entity: PlanItemEntity = null;
-      if (data.id) {
+      if (data.id && !options?.createNew) {
+        console.log({ data: 1 });
         entity = await this.getPlanItemById(data.id);
         entity.name = data.name ?? entity.name;
         entity.code = data.code ?? entity.code;
@@ -273,6 +289,7 @@ export class PlanService {
         result.data = entity;
         return result;
       }
+      console.log({ data });
       entity = await this.planItemRepository.create({
         name: data.name,
         code: data.code,

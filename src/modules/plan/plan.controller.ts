@@ -182,6 +182,7 @@ export class PlanController {
       },
       { createNew: true },
     );
+    console.log(resultUpsert);
     if (resultUpsert.isBadRequest) {
       throw new HttpException(resultUpsert.message, resultUpsert.status ?? 400);
     }
