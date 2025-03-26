@@ -60,6 +60,18 @@ export type TPlanCreditSummary = {
   totalGradeCanImprovement?: number;
 };
 
+export type TPlanItemSummary = {
+  totalCredits?: number;
+  totalSubjects?: number;
+  totalSubjectsCompleted?: number;
+  totalCreditsCompleted?: number;
+  totalSubjectsIncomplete?: number;
+  totalCreditsIncomplete?: number;
+  totalSubjectsCanImprovement?: number;
+  totalCreditsCanImprovement?: number;
+  currentCPA?: number;
+};
+
 export type TPlanSummary = {
   credits?: TPlanCreditSummary;
   cpa?: TPlanCPASummary;

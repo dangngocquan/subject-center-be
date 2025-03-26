@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ResponsePlanItemDto } from './res.plan-item.dto';
 
-class ResponsePlanCreditsDto {
+export class ResponsePlanCreditsDto {
   @ApiProperty()
   totalCredits: number;
 

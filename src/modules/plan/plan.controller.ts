@@ -73,7 +73,7 @@ export class PlanController {
     if (result.isBadRequest) {
       throw new HttpException(result.message, result.status ?? 400);
     }
-    return result.data;
+    return result.data; // Includes progress in the response
   }
 
   @Get('export/sample/json')

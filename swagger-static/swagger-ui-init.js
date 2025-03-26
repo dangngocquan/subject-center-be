@@ -810,6 +810,61 @@ window.onload = function() {
             "data"
           ]
         },
+        "ResponsePlanCreditsDto": {
+          "type": "object",
+          "properties": {
+            "totalCredits": {
+              "type": "number"
+            },
+            "totalSubjects": {
+              "type": "number"
+            },
+            "totalSubjectsCompleted": {
+              "type": "number"
+            },
+            "totalCreditsCompleted": {
+              "type": "number"
+            },
+            "totalSubjectsIncomplete": {
+              "type": "number"
+            },
+            "totalCreditsIncomplete": {
+              "type": "number"
+            },
+            "totalSubjectsCanImprovement": {
+              "type": "number"
+            },
+            "totalCreditsCanImprovement": {
+              "type": "number"
+            },
+            "currentCPA": {
+              "type": "number"
+            },
+            "grades": {
+              "type": "object"
+            },
+            "totalGradeCompleted": {
+              "type": "number"
+            },
+            "totalGradeCanImprovement": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "totalCredits",
+            "totalSubjects",
+            "totalSubjectsCompleted",
+            "totalCreditsCompleted",
+            "totalSubjectsIncomplete",
+            "totalCreditsIncomplete",
+            "totalSubjectsCanImprovement",
+            "totalCreditsCanImprovement",
+            "currentCPA",
+            "grades",
+            "totalGradeCompleted",
+            "totalGradeCanImprovement"
+          ]
+        },
         "ResponsePlanListDto": {
           "type": "object",
           "properties": {
@@ -829,6 +884,9 @@ window.onload = function() {
             "updatedAt": {
               "format": "date-time",
               "type": "string"
+            },
+            "summary": {
+              "$ref": "#/components/schemas/ResponsePlanCreditsDto"
             }
           },
           "required": [
@@ -836,7 +894,8 @@ window.onload = function() {
             "name",
             "accountId",
             "createdAt",
-            "updatedAt"
+            "updatedAt",
+            "summary"
           ]
         },
         "ResponsePlanItemDto": {
@@ -1005,61 +1064,6 @@ window.onload = function() {
               }
             }
           }
-        },
-        "ResponsePlanCreditsDto": {
-          "type": "object",
-          "properties": {
-            "totalCredits": {
-              "type": "number"
-            },
-            "totalSubjects": {
-              "type": "number"
-            },
-            "totalSubjectsCompleted": {
-              "type": "number"
-            },
-            "totalCreditsCompleted": {
-              "type": "number"
-            },
-            "totalSubjectsIncomplete": {
-              "type": "number"
-            },
-            "totalCreditsIncomplete": {
-              "type": "number"
-            },
-            "totalSubjectsCanImprovement": {
-              "type": "number"
-            },
-            "totalCreditsCanImprovement": {
-              "type": "number"
-            },
-            "currentCPA": {
-              "type": "number"
-            },
-            "grades": {
-              "type": "object"
-            },
-            "totalGradeCompleted": {
-              "type": "number"
-            },
-            "totalGradeCanImprovement": {
-              "type": "number"
-            }
-          },
-          "required": [
-            "totalCredits",
-            "totalSubjects",
-            "totalSubjectsCompleted",
-            "totalCreditsCompleted",
-            "totalSubjectsIncomplete",
-            "totalCreditsIncomplete",
-            "totalSubjectsCanImprovement",
-            "totalCreditsCanImprovement",
-            "currentCPA",
-            "grades",
-            "totalGradeCompleted",
-            "totalGradeCanImprovement"
-          ]
         },
         "ResponsePlanCPAMarkDto": {
           "type": "object",

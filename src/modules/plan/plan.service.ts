@@ -109,7 +109,7 @@ export class PlanService {
       data: [],
     };
     try {
-      result.data = await this.planRepository.find({
+      const plans = await this.planRepository.find({
         where: {
           name: ILike(`%${filter?.name?.toLocaleLowerCase()?.trim() ?? ''}%`),
           accountId: In(user.accounts.map((account) => account.id)),
@@ -117,6 +117,17 @@ export class PlanService {
         order: {
           orderIndex: 'ASC',
         },
+        relations: {
+          items: true,
+        },
+      });
+
+      result.data = plans.map((plan) => {
+        const summary = this.summaryPlanItems(plan.items);
+        return {
+          ...plan,
+          summary,
+        };
       });
     } catch (error) {
       this.logger.error(
@@ -404,133 +415,82 @@ export class PlanService {
     return result;
   }
 
-  // async getPlanCPASummaryV2(
-  //   data: TPlanCreditSummary,
-  // ): Promise<TResponse<TPlanCPASummary>> {
-  //   const result: TResponse<TPlanCPASummary> = {
-  //     isBadRequest: false,
-  //     message: '',
-  //     data: null,
-  //     status: 200,
-  //   };
-  //   try {
-  //     if (data.totalCredits == 0) {
-  //       result.isBadRequest = true;
-  //       result.message =
-  //         'Total subjects or total credits is zero. No data to generate CPA summary';
-  //       result.status = 400;
-  //       return result;
-  //     }
-  //     const currentMark = {
-  //       grade4: this.gradeConversionService.roundGradeGraduation(
-  //         data.currentCPA,
-  //       ),
-  //       type: EPlanCPAMarkType.CURRENT,
-  //       details: {
-  //         content: `You current CPA (${data.currentCPA})`,
-  //       },
-  //     };
-  //     const graduationMarks = GRADE_GRADUATION.map((mark) => ({
-  //       grade4: mark.minGrade4,
-  //       type: EPlanCPAMarkType.GRADUATION_MARK,
-  //       details: {
-  //         content: mark.description,
-  //       },
-  //     }));
-
-  //     // CPA Without Improvements
-  //     const withoutImprovements: TPlanCPA = {
-  //       marks: structuredClone(graduationMarks),
-  //     };
-  //     withoutImprovements.marks.push(currentMark);
-
-  //     const minCPAWithoutImprovement = this.getCPAInCase(data, EGradeLatin.D, {
-  //       replaceImprovementSubjects: false,
-  //     });
-  //     withoutImprovements.marks.push({
-  //       grade4: this.gradeConversionService.roundGradeGraduation(
-  //         minCPAWithoutImprovement,
-  //       ),
-  //       type: EPlanCPAMarkType.MIN,
-  //       details: {
-  //         content: `Your minimum CPA (${minCPAWithoutImprovement}). This occurs when you receive a grade of D in all incomplete subjects.`,
-  //       },
-  //     });
-
-  //     const maxCPAWithoutImprovement = this.getCPAInCase(
-  //       data,
-  //       EGradeLatin.A_PLUS,
-  //       { replaceImprovementSubjects: false },
-  //     );
-  //     withoutImprovements.marks.push({
-  //       grade4: this.gradeConversionService.roundGradeGraduation(
-  //         maxCPAWithoutImprovement,
-  //       ),
-  //       type: EPlanCPAMarkType.MAX,
-  //       details: {
-  //         content: `Your maximum CPA (${maxCPAWithoutImprovement}). This occurs when you receive a grade of A+ in all incomplete subjects.`,
-  //       },
-  //     });
-
-  //     // CPA With Improvements
-  //     const withImprovements: TPlanCPA = {
-  //       marks: GRADE_GRADUATION.map((mark) => ({
-  //         grade4: mark.minGrade4,
-  //         type: EPlanCPAMarkType.GRADUATION_MARK,
-  //         details: {
-  //           content: mark.description,
-  //         },
-  //       })),
-  //     };
-  //     withImprovements.marks.push(currentMark);
-
-  //     const minCPAWithImprovements = this.getCPAInCase(data, EGradeLatin.D, {
-  //       replaceImprovementSubjects: true,
-  //     });
-  //     withImprovements.marks.push({
-  //       grade4: this.gradeConversionService.roundGradeGraduation(
-  //         minCPAWithImprovements,
-  //       ),
-  //       type: EPlanCPAMarkType.MIN,
-  //       details: {
-  //         content: `Your minimum CPA (${minCPAWithImprovements}). This occurs when you receive a grade of D in all incomplete subjects and improvement subjects.`,
-  //       },
-  //     });
-
-  //     const maxCPAWithImprovements = this.getCPAInCase(
-  //       data,
-  //       EGradeLatin.A_PLUS,
-  //       { replaceImprovementSubjects: true },
-  //     );
-  //     withImprovements.marks.push({
-  //       grade4: this.gradeConversionService.roundGradeGraduation(
-  //         maxCPAWithImprovements,
-  //       ),
-  //       type: EPlanCPAMarkType.MAX,
-  //       details: {
-  //         content: `Your maximum CPA (${maxCPAWithImprovements}). This occurs when you receive a grade of A+ in all incomplete subjects and improvement subjects.`,
-  //       },
-  //     });
-  //     result.data = {
-  //       withoutImprovements: {
-  //         marks: withoutImprovements.marks.sort((a, b) => a.grade4 - b.grade4),
-  //       },
-  //       withImprovements: {
-  //         marks: withImprovements.marks.sort((a, b) => a.grade4 - b.grade4),
-  //       },
-  //     };
-  //   } catch (error) {
-  //     this.logger.error(
-  //       `[getPlanCPASummary]: Failed to get plan CPA summary, error: ${
-  //         error.message || error.toString()
-  //       }`,
-  //     );
-  //     result.isBadRequest = true;
-  //     result.message = `${error.message || error.toString()}`;
-  //     result.status = 500;
-  //   }
-  //   return result;
-  // }
+  summaryPlanItems(items: PlanItemEntity[]): TResponse<TPlanCreditSummary> {
+    const result: TResponse<TPlanCreditSummary> = {
+      isBadRequest: false,
+      message: '',
+      data: {
+        totalCredits: 0,
+        totalSubjects: 0,
+        totalSubjectsCompleted: 0,
+        totalCreditsCompleted: 0,
+        totalSubjectsIncomplete: 0,
+        totalCreditsIncomplete: 0,
+        totalSubjectsCanImprovement: 0,
+        totalCreditsCanImprovement: 0,
+        currentCPA: 0,
+        grades: {},
+        totalGradeCompleted: 0,
+        totalGradeCanImprovement: 0,
+      },
+      status: 200,
+    };
+    try {
+      items.forEach((item) => {
+        const credits = parseInt(`${item.credit}`);
+        result.data.totalCredits += credits;
+        result.data.totalSubjects++;
+        // Has grade data
+        if (item.grade4) {
+          // Summary grade type
+          if (!result.data.grades[item.gradeLatin]) {
+            result.data.grades[item.gradeLatin] = {
+              gradeLatin: item.gradeLatin,
+              count: 0,
+              credits: 0,
+            };
+          }
+          result.data.grades[item.gradeLatin].count++;
+          result.data.grades[item.gradeLatin].credits += credits;
+          // Grade > F
+          if (item.grade4 > 0) {
+            result.data.totalSubjectsCompleted++;
+            result.data.totalCreditsCompleted += credits;
+            result.data.totalGradeCompleted += credits * item.grade4;
+            // Grade D, D+
+            if (item.grade4 < GRADE_CONVERSION_LATIN_TO_4[EGradeLatin.C]) {
+              result.data.totalSubjectsCanImprovement++;
+              result.data.totalCreditsCanImprovement += credits;
+              result.data.totalGradeCanImprovement += credits * item.grade4;
+            }
+          }
+          // Grade F
+          else {
+            result.data.totalSubjectsIncomplete++;
+            result.data.totalCreditsIncomplete += credits;
+            result.data.totalSubjectsCanImprovement++;
+            result.data.totalCreditsCanImprovement += credits;
+          }
+        }
+        // Don't have grade data
+        else {
+          result.data.totalSubjectsIncomplete++;
+          result.data.totalCreditsIncomplete += credits;
+        }
+      });
+      result.data.currentCPA =
+        result.data.totalCreditsCompleted > 0
+          ? result.data.totalGradeCompleted / result.data.totalCreditsCompleted
+          : 0;
+    } catch (error) {
+      this.logger.error(
+        `[summaryPlanItems]: Failed to summary plan items, error: ${
+          error.message || error.toString()
+        }`,
+      );
+    }
+    return result;
+  }
 
   private calculatePossibilityAndCases(
     minCPA: number,
