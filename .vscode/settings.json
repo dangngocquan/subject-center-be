@@ -1,0 +1,9 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "text": "Generate a commit message following the Conventional Commits format. Start with a concise type (feat, fix, refactor, chore, etc.), followed by a short summary of the change. In the body, list modified files with bullet points and describe key changes briefly. Keep it clear and structured. Don't use special characters (e.g: \")"
+    }
+  ],
+  "github.copilot.chat.codeGeneration.instructions": []
+}

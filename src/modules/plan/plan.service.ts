@@ -175,7 +175,7 @@ export class PlanService {
     };
     try {
       let entity: PlanEntity = null;
-      if (data.id && !options.createNew) {
+      if (data.id && !options?.createNew) {
         entity = await this.getPlanById(data.id);
         if (!user.accounts.map((a) => a.id).includes(entity.accountId)) {
           result.isBadRequest = true;
