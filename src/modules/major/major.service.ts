@@ -69,6 +69,9 @@ export class MajorService {
         where: {
           name: ILike(`%${filter?.name?.toLocaleLowerCase()?.trim() ?? ''}%`),
         },
+        order: {
+          orderIndex: 'ASC',
+        },
       });
     } catch (error) {
       this.logger.error(
