@@ -5,6 +5,7 @@ import { TResponse } from '../../common/type';
 import { MajorEntity } from './entity/major.entity';
 import { MajorItemEntity } from './entity/major-item.entity';
 import { TMajor, TMajorItem } from './major.type';
+import { AESService } from '../aes/aes.service';
 
 @Injectable()
 export class MajorService {
@@ -15,6 +16,7 @@ export class MajorService {
     private readonly majorRepository: Repository<MajorEntity>,
     @InjectRepository(MajorItemEntity)
     private readonly subjectRepository: Repository<MajorItemEntity>,
+    private readonly aesService: AESService,
   ) {}
 
   async getMajorById(id: number): Promise<MajorEntity> {
@@ -62,10 +64,10 @@ export class MajorService {
       data: [],
     };
     try {
-      result.data = await this.majorRepository.find({
-        relations: {
-          items: true,
-        },
+      const entities = await this.majorRepository.find({
+        // relations: {
+        //   items: true,
+        // },
         where: {
           name: ILike(`%${filter?.name?.toLocaleLowerCase()?.trim() ?? ''}%`),
         },
@@ -73,6 +75,8 @@ export class MajorService {
           orderIndex: 'ASC',
         },
       });
+
+      result.data = entities;
     } catch (error) {
       this.logger.error(
         `[getMajors]: Failed to get majors, error: ${

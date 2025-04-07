@@ -6,12 +6,14 @@ import { MajorController } from './major.controller';
 import { MajorService } from './major.service';
 import { ImportModule } from '../import/import.module';
 import { ExportModule } from '../export/export.module';
+import { AESModule } from '../aes/aes.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([MajorEntity, MajorItemEntity]),
     ImportModule,
     ExportModule,
+    AESModule,
   ],
   controllers: [MajorController],
   providers: [MajorService],
